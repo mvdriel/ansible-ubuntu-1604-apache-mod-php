@@ -1,0 +1,27 @@
+# tasks file for ubuntu-1604-apache-mod-php
+---
+- name: configure | update apache security conf
+  lineinfile:
+    dest: /etc/apache2/conf-available/security.conf
+    regexp: "^{{ item.key }}\\s"
+    line: "{{ item.key }} {{ item.value }}"
+  with_items:
+    - key: ServerTokens
+      value: Prod
+    - key: ServerSignature
+      value: 'Off'
+  notify: reload apache2
+
+- name: configure | enable apache mods
+  command: a2enmod {{ item }}
+  args:
+    creates: "/etc/apache2/mods-enabled/{{ item }}.load"
+  with_items: "{{ ubuntu_1604_apache_mod_php_apache_mods_enabled }}"
+  notify: restart apache2
+
+- name: configure | enable php mods
+  command: phpenmod -s apache2 {{ item }}
+  args:
+    creates: "/etc/php/7.0/apache2/conf.d/20-{{ item }}.ini"
+  with_items: "{{ ubuntu_1604_apache_mod_php_php_mods_enabled }}"
+  notify: restart apache2

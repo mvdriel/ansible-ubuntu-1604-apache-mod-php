@@ -1,0 +1,6 @@
+# tasks file for ubuntu-1604-apache-mod-php
+---
+
+- include: install.yml
+
+- include: configure.yml

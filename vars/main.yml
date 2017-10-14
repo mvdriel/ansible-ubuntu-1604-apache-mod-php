@@ -1,0 +1,6 @@
+# vars file for ubuntu-1604-apache-mod-php
+---
+ubuntu_1604_apache_mod_php_dependencies:
+  - apache2
+  - php
+  - libapache2-mod-php

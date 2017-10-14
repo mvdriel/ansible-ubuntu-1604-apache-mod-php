@@ -1,0 +1,7 @@
+# defaults file for ubuntu-1604-apache-mod-php
+---
+ubuntu_1604_apache_mod_php_install: []
+
+ubuntu_1604_apache_mod_php_apache_mods_enabled: []
+
+ubuntu_1604_apache_mod_php_php_mods_enabled: []
