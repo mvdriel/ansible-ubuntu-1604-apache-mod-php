@@ -3,13 +3,19 @@
 - name: configure | update apache security conf
   lineinfile:
     dest: /etc/apache2/conf-available/security.conf
-    regexp: "^{{ item.key }}\\s"
+    regexp: "{{ item.regexp | default('^' + item.key + '\\s') }}"
+    insertbefore: '# vim: syntax=apache ts=4 sw=4 sts=4 sr noet'
     line: "{{ item.key }} {{ item.value }}"
-  with_items:
-    - key: ServerTokens
-      value: Prod
-    - key: ServerSignature
-      value: 'Off'
+  with_items: "{{ ubuntu_1604_apache_mod_php_apache_conf_security_declarations }}"
+  notify: reload apache2
+
+- name: configure | update apache mod ssl conf
+  lineinfile:
+    dest: /etc/apache2/mods-available/ssl.conf
+    regexp: "^\\s(#?){{ item.key }}\\s"
+    insertbefore: '</IfModule>'
+    line: "\t{{ item.key }} {{ item.value }}"
+  with_items: "{{ ubuntu_1604_apache_mod_php_apache_mod_ssl_declarations }}"
   notify: reload apache2
 
 - name: configure | enable apache mods
@@ -25,3 +31,44 @@
     creates: "/etc/php/7.0/apache2/conf.d/20-{{ item }}.ini"
   with_items: "{{ ubuntu_1604_apache_mod_php_php_mods_enabled }}"
   notify: restart apache2
+
+- name: configure | create directories for default virtual host
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /var/www/{{ inventory_hostname }}/public_html
+    - /var/www/{{ inventory_hostname }}/log
+
+- name: configure | update configuration default virtual host
+  template:
+    src: etc/apache2/sites-available/000-default.conf.j2
+    dest: "/etc/apache2/sites-available/000-default.conf"
+  notify: reload apache2
+
+- name: configure | enable default virtual host
+  command: a2ensite 000-default
+  args:
+    creates: "/etc/apache2/sites-enabled/000-default.conf"
+  notify: reload apache2
+
+- name: configure | copy sites-available configuration files for users
+  template:
+    src: etc/apache2/sites-available/100-username.conf.j2
+    dest: "/etc/apache2/sites-available/100-{{ item.username }}.conf"
+  with_items: "{{ ubuntu_1604_apache_mod_php_user_virtual_hosts }}"
+  notify: reload apache2
+
+- name: configure | enable sites
+  command: a2ensite {{ item }}
+  args:
+    creates: "/etc/apache2/sites-enabled/{{ item }}.conf"
+  with_items: "{{ ubuntu_1604_apache_mod_php_sites_enabled }}"
+  notify: reload apache2
+
+- name: configure | disable sites
+  command: a2dissite {{ item }}
+  args:
+    removes: "/etc/apache2/sites-enabled/{{ item }}.conf"
+  with_items: "{{ ubuntu_1604_apache_mod_php_sites_disabled }}"
+  notify: reload apache2

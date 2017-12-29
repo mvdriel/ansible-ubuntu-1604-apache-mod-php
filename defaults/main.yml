@@ -2,6 +2,46 @@
 ---
 ubuntu_1604_apache_mod_php_install: []
 
-ubuntu_1604_apache_mod_php_apache_mods_enabled: []
+ubuntu_1604_apache_mod_php_apache_mods_enabled:
+  - headers
+  - ssl
 
 ubuntu_1604_apache_mod_php_php_mods_enabled: []
+
+ubuntu_1604_apache_mod_php_sites_available_present: {}
+
+ubuntu_1604_apache_mod_php_sites_enabled: []
+
+ubuntu_1604_apache_mod_php_sites_disabled: []
+
+ubuntu_1604_apache_mod_php_user_virtual_hosts: []
+
+ubuntu_1604_apache_mod_php_apache_conf_security_declarations:
+  - key: ServerTokens
+    value: Prod
+  - key: ServerSignature
+    value: 'Off'
+  - key: 'Header always set Strict-Transport-Security'
+    value: '"max-age=63072000; includeSubDomains; preload"'
+  - key: 'Header always set X-Content-Type-Options:'
+    value: '"nosniff"'
+    regexp: "^(#?)Header ((always\\s)?)set X-Content-Type-Options:\\s"
+  - key: 'Header always set X-Frame-Options:'
+    value: '"DENY"'
+    regexp: "^(#?)Header ((always\\s)?)set X-Frame-Options:\\s"
+
+ubuntu_1604_apache_mod_php_apache_mod_ssl_declarations:
+  - key: SSLHonorCipherOrder
+    value: 'on'
+  - key: SSLCompression
+    value: 'off'
+  - key: SSLSessionTickets
+    value: 'off'
+  - key: SSLUseStapling
+    value: 'on'
+  - key: SSLStaplingResponderTimeout
+    value: 5
+  - key: SSLStaplingReturnResponderErrors
+    value: 'off'
+  - key: SSLStaplingCache
+    value: 'shmcb:${APACHE_RUN_DIR}/ocsp(128000)'

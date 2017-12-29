@@ -1,0 +1,52 @@
+# {{ ansible_managed }}
+
+<VirtualHost *:80>
+	DocumentRoot /home/{{ item.username }}/public_html
+	ServerName {{ item.server_name }}
+{% for server_alias in item.server_alias | default([]) %}
+	ServerAlias {{ server_alias }}
+{% endfor %}
+
+	<Directory /home/{{ item.username }}/public_html/>
+		Options FollowSymLinks MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+
+	ErrorLog /home/{{ item.username }}/log/error.log
+	CustomLog /home/{{ item.username }}/log/access.log combined
+
+	<IfModule mpm_itk_module>
+		AssignUserId {{ item.username }} {{ item.username }}
+	</IfModule>
+
+</VirtualHost>
+
+<VirtualHost *:443>
+	DocumentRoot /home/{{ item.username }}/public_html
+	ServerName {{ item.server_name }}
+{% for server_alias in item.server_alias | default([]) %}
+	ServerAlias {{ server_alias }}
+{% endfor %}
+
+	SSLEngine on
+
+	SSLCertificateFile /etc/letsencrypt/live/{{ item.server_name }}/cert.pem
+	SSLCertificateChainFile /etc/letsencrypt/live/{{ item.server_name }}/chain.pem
+	SSLCertificateKeyFile /etc/letsencrypt/live/{{ item.server_name }}/privkey.pem
+	SSLCACertificateFile /etc/letsencrypt/live/{{ item.server_name }}/fullchain.pem
+
+	<Directory /home/{{ item.username }}/public_html/>
+		Options FollowSymLinks MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+
+	ErrorLog /home/{{ item.username }}/log/error.log
+	CustomLog /home/{{ item.username }}/log/access.log combined
+
+	<IfModule mpm_itk_module>
+		AssignUserId {{ item.username }} {{ item.username }}
+	</IfModule>
+
+</VirtualHost>

@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+
+<VirtualHost *:80>
+	DocumentRoot /var/www/{{ ansible_host }}/public_html
+	ServerName {{ ansible_host }}
+
+	<Directory /var/www/{{ ansible_host }}/public_html/>
+		Options FollowSymLinks MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+
+	ErrorLog /var/www/{{ ansible_host }}/log/error.log
+	CustomLog /var/www/{{ ansible_host }}/log/access.log combined
+</VirtualHost>
+
+<VirtualHost *:443>
+	DocumentRoot /var/www/{{ ansible_host }}/public_html
+	ServerName {{ ansible_host }}
+
+	SSLEngine on
+
+	SSLCertificateFile /etc/letsencrypt/live/{{ ansible_host }}/cert.pem
+	SSLCertificateChainFile /etc/letsencrypt/live/{{ ansible_host }}/chain.pem
+	SSLCertificateKeyFile /etc/letsencrypt/live/{{ ansible_host }}/privkey.pem
+	SSLCACertificateFile /etc/letsencrypt/live/{{ ansible_host }}/fullchain.pem
+
+	<Directory /var/www/{{ ansible_host }}/public_html/>
+		Options FollowSymLinks MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+
+	ErrorLog /var/www/{{ ansible_host }}/log/error.log
+	CustomLog /var/www/{{ ansible_host }}/log/access.log combined
+</VirtualHost>
