@@ -1,6 +1,6 @@
 ## ubuntu-1604-apache-mod-php
 
-
+Set up Apache2 with mod_php on Ubuntu 16.04.
 
 #### Variables
 
