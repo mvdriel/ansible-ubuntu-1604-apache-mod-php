@@ -52,11 +52,39 @@
     creates: "/etc/apache2/sites-enabled/000-default.conf"
   notify: reload apache2
 
-- name: configure | copy sites-available configuration files for users
+- name: configure | create log directories for users
+  file:
+    path: "/home/{{ item.username }}/log"
+    state: directory
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 0750
+  with_items: "{{ ubuntu_1604_apache_mod_php_user_virtual_hosts }}"
+
+- name: configure | create web root directories for users
+  file:
+    path: "/home/{{ item.username }}/public_html"
+    state: directory
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 0750
+  with_items: "{{ ubuntu_1604_apache_mod_php_user_virtual_hosts }}"
+  failed_when: false
+
+- name: configure | copy sites-available configuration files for users (with ssl)
   template:
     src: etc/apache2/sites-available/100-username.conf.j2
     dest: "/etc/apache2/sites-available/100-{{ item.username }}.conf"
   with_items: "{{ ubuntu_1604_apache_mod_php_user_virtual_hosts }}"
+  when: item.ssl | default(true) | bool
+  notify: reload apache2
+
+- name: configure | copy sites-available configuration files for users (without ssl)
+  template:
+    src: etc/apache2/sites-available/100-username-nossl.conf.j2
+    dest: "/etc/apache2/sites-available/100-{{ item.username }}.conf"
+  with_items: "{{ ubuntu_1604_apache_mod_php_user_virtual_hosts }}"
+  when: not item.ssl | default(true) | bool
   notify: reload apache2
 
 - name: configure | enable sites
