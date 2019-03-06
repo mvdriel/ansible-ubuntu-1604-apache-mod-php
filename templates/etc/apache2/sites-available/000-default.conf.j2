@@ -1,14 +1,10 @@
 # {{ ansible_managed }}
 
 <VirtualHost *:80>
-	DocumentRoot /var/www/{{ ansible_host }}/public_html
 	ServerName {{ ansible_host }}
 
-	<Directory /var/www/{{ ansible_host }}/public_html/>
-		Options FollowSymLinks MultiViews
-		AllowOverride All
-		Require all granted
-	</Directory>
+	RewriteEngine on
+	RewriteRule ^(.*)$ https://{{ ansible_host }}$1 [R=301,L]
 
 	ErrorLog /var/www/{{ ansible_host }}/log/error.log
 	CustomLog /var/www/{{ ansible_host }}/log/access.log combined
@@ -28,7 +24,7 @@
 	<Directory /var/www/{{ ansible_host }}/public_html/>
 		Options FollowSymLinks MultiViews
 		AllowOverride All
-		Require all granted
+		Require all denied
 	</Directory>
 
 	ErrorLog /var/www/{{ ansible_host }}/log/error.log

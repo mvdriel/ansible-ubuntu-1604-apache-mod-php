@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+
+<VirtualHost *:80>
+	DocumentRoot /home/{{ item.username }}/public_html
+	ServerName {{ item.server_name }}
+{% for server_alias in item.server_alias | default([]) %}
+	ServerAlias {{ server_alias }}
+{% endfor %}
+
+{% for environment_variable in item.environment_variables | default([]) %}
+	SetEnv {{ environment_variable.name }} {{ environment_variable.value }}
+{% endfor %}
+
+	<Directory /home/{{ item.username }}/public_html/>
+		Options FollowSymLinks MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+
+	ErrorLog /home/{{ item.username }}/log/error.log
+	CustomLog /home/{{ item.username }}/log/access.log combined
+
+	<IfModule mpm_itk_module>
+		AssignUserId {{ item.username }} {{ item.username }}
+	</IfModule>
+
+</VirtualHost>
