@@ -40,9 +40,14 @@
     - /var/www/{{ inventory_hostname }}/public_html
     - /var/www/{{ inventory_hostname }}/log
 
+- name: configure | check ssl certificate exists
+  stat:
+    path: "/etc/letsencrypt/live/{{ inventory_hostname }}/cert.pem"
+  register: _configure_ssl_certificate
+
 - name: configure | update configuration default virtual host
   template:
-    src: etc/apache2/sites-available/000-default.conf.j2
+    src: etc/apache2/sites-available/000-default{{ '-nossl' if not _configure_ssl_certificate.stat.exists else '' }}.conf.j2
     dest: "/etc/apache2/sites-available/000-default.conf"
   notify: reload apache2
 
