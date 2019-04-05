@@ -4,6 +4,7 @@
 	ServerName {{ ansible_host }}
 
 	RewriteEngine on
+	RewriteCond %{HTTP_HOST} ^{{ ansible_host }}$
 	RewriteRule ^(.*)$ https://{{ ansible_host }}$1 [R=301,L]
 
 	ErrorLog /var/www/{{ ansible_host }}/log/error.log
